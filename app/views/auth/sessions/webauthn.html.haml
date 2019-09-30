@@ -1,0 +1,13 @@
+- content_for :page_title do
+  = t('auth.login')
+
+= simple_form_for(resource, as: resource_name, url: session_path(resource_name), method: :post) do |f|
+  %p.hint{ style: 'margin-bottom: 25px' } Please use one of your security keys to log in
+
+  .actions
+    = f.button :button, t('auth.login'), type: :submit
+
+  - if Setting.site_contact_email.present?
+    %p.hint.subtle-hint= t('users.otp_lost_help_html', email: mail_to(Setting.site_contact_email, nil))
+
+=javascript_pack_tag 'webauthn_login'

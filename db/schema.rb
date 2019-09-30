@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_17_213523) do
+ActiveRecord::Schema.define(version: 2019_09_26_165133) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -759,6 +759,7 @@ ActiveRecord::Schema.define(version: 2019_09_17_213523) do
     t.string "chosen_languages", array: true
     t.bigint "created_by_application_id"
     t.boolean "approved", default: true, null: false
+    t.string "webauthn_handle"
     t.index ["account_id"], name: "index_users_on_account_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["created_by_application_id"], name: "index_users_on_created_by_application_id"
@@ -786,6 +787,18 @@ ActiveRecord::Schema.define(version: 2019_09_17_213523) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_web_settings_on_user_id", unique: true
+  end
+
+  create_table "webauthn_credentials", force: :cascade do |t|
+    t.bigint "user_id"
+    t.string "external_id", null: false
+    t.text "public_key", null: false
+    t.string "nickname", null: false
+    t.bigint "sign_count", default: 0, null: false
+    t.datetime "last_used_on"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_webauthn_credentials_on_user_id"
   end
 
   add_foreign_key "account_aliases", "accounts", on_delete: :cascade
@@ -871,4 +884,5 @@ ActiveRecord::Schema.define(version: 2019_09_17_213523) do
   add_foreign_key "web_push_subscriptions", "oauth_access_tokens", column: "access_token_id", on_delete: :cascade
   add_foreign_key "web_push_subscriptions", "users", on_delete: :cascade
   add_foreign_key "web_settings", "users", name: "fk_11910667b2", on_delete: :cascade
+  add_foreign_key "webauthn_credentials", "users"
 end

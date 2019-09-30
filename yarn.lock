@@ -891,6 +891,11 @@
   resolved "https://registry.yarnpkg.com/@emotion/utils/-/utils-0.8.2.tgz#576ff7fb1230185b619a75d258cbc98f0867a8dc"
   integrity sha512-rLu3wcBWH4P5q1CGoSSH/i9hrXs7SlbRLkoq9IGuoPYNGQvDJ3pt/wmOM+XgYjIDRMVIdkUWt0RsfzF50JfnCw==
 
+"@github/webauthn-json@^0.3.1":
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/@github/webauthn-json/-/webauthn-json-0.3.6.tgz#d1a143489087e904225fd2fde9217c2c2d8d3b7b"
+  integrity sha512-0yTfZ8mbmaGv7jck0DfkCP9vXcAAkKKWVrScSGp314gIcuNiYluHLSCnl+lTS8q2UIWZeEamqHCQw6dQ327nNg==
+
 "@jest/console@^24.7.1":
   version "24.7.1"
   resolved "https://registry.yarnpkg.com/@jest/console/-/console-24.7.1.tgz#32a9e42535a97aedfe037e725bd67e954b459545"

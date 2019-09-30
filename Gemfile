@@ -33,6 +33,7 @@ gem 'chewy', '~> 5.1'
 gem 'cld3', '~> 3.2.4'
 gem 'devise', '~> 4.7'
 gem 'devise-two-factor', '~> 3.1'
+gem "webauthn", "~> 2.0.0.a"
 
 group :pam_authentication, optional: true do
   gem 'devise_pam_authenticatable2', '~> 9.2'

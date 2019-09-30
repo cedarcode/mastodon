@@ -3,41 +3,42 @@
 #
 # Table name: users
 #
-#  id                        :bigint(8)        not null, primary key
-#  email                     :string           default(""), not null
-#  created_at                :datetime         not null
-#  updated_at                :datetime         not null
-#  encrypted_password        :string           default(""), not null
-#  reset_password_token      :string
-#  reset_password_sent_at    :datetime
-#  remember_created_at       :datetime
-#  sign_in_count             :integer          default(0), not null
-#  current_sign_in_at        :datetime
-#  last_sign_in_at           :datetime
-#  current_sign_in_ip        :inet
-#  last_sign_in_ip           :inet
-#  admin                     :boolean          default(FALSE), not null
-#  confirmation_token        :string
-#  confirmed_at              :datetime
-#  confirmation_sent_at      :datetime
-#  unconfirmed_email         :string
-#  locale                    :string
-#  encrypted_otp_secret      :string
-#  encrypted_otp_secret_iv   :string
-#  encrypted_otp_secret_salt :string
-#  consumed_timestep         :integer
-#  otp_required_for_login    :boolean          default(FALSE), not null
-#  last_emailed_at           :datetime
-#  otp_backup_codes          :string           is an Array
-#  filtered_languages        :string           default([]), not null, is an Array
-#  account_id                :bigint(8)        not null
-#  disabled                  :boolean          default(FALSE), not null
-#  moderator                 :boolean          default(FALSE), not null
-#  invite_id                 :bigint(8)
-#  remember_token            :string
-#  chosen_languages          :string           is an Array
-#  created_by_application_id :bigint(8)
-#  approved                  :boolean          default(TRUE), not null
+#  id                          :bigint(8)        not null, primary key
+#  email                       :string           default(""), not null
+#  created_at                  :datetime         not null
+#  updated_at                  :datetime         not null
+#  encrypted_password          :string           default(""), not null
+#  reset_password_token        :string
+#  reset_password_sent_at      :datetime
+#  remember_created_at         :datetime
+#  sign_in_count               :integer          default(0), not null
+#  current_sign_in_at          :datetime
+#  last_sign_in_at             :datetime
+#  current_sign_in_ip          :inet
+#  last_sign_in_ip             :inet
+#  admin                       :boolean          default(FALSE), not null
+#  confirmation_token          :string
+#  confirmed_at                :datetime
+#  confirmation_sent_at        :datetime
+#  unconfirmed_email           :string
+#  locale                      :string
+#  encrypted_otp_secret        :string
+#  encrypted_otp_secret_iv     :string
+#  encrypted_otp_secret_salt   :string
+#  consumed_timestep           :integer
+#  otp_required_for_login      :boolean          default(FALSE), not null
+#  last_emailed_at             :datetime
+#  otp_backup_codes            :string           is an Array
+#  filtered_languages          :string           default([]), not null, is an Array
+#  account_id                  :bigint(8)        not null
+#  disabled                    :boolean          default(FALSE), not null
+#  moderator                   :boolean          default(FALSE), not null
+#  invite_id                   :bigint(8)
+#  remember_token              :string
+#  chosen_languages            :string           is an Array
+#  created_by_application_id   :bigint(8)
+#  approved                    :boolean          default(TRUE), not null
+#  webauthn_handle             :string
 #
 
 class User < ApplicationRecord
@@ -75,6 +76,7 @@ class User < ApplicationRecord
   has_many :backups, inverse_of: :user
   has_many :invites, inverse_of: :user
   has_many :markers, inverse_of: :user, dependent: :destroy
+  has_many :webauthn_credentials, dependent: :destroy
 
   has_one :invite_request, class_name: 'UserInviteRequest', inverse_of: :user, dependent: :destroy
   accepts_nested_attributes_for :invite_request, reject_if: ->(attributes) { attributes['text'].blank? }
@@ -287,6 +289,10 @@ class User < ApplicationRecord
 
   def hide_all_media?
     setting_display_media == 'hide_all'
+  end
+
+  def webauthn_required_for_login?
+    webauthn_credentials.any?
   end
 
   protected

@@ -9,6 +9,7 @@ class Auth::SessionsController < Devise::SessionsController
   skip_before_action :require_functional!
 
   prepend_before_action :authenticate_with_two_factor, if: :two_factor_enabled?, only: [:create]
+  prepend_before_action :authenticate_with_webauthn, if: :webauthn_enabled?, only: [:create]
 
   before_action :set_instance_presenter, only: [:new]
   before_action :set_body_classes
@@ -36,11 +37,30 @@ class Auth::SessionsController < Devise::SessionsController
     store_location_for(:user, tmp_stored_location) if continue_after?
   end
 
+  def options
+    user = find_user
+
+    if webauthn_enabled?
+      options_for_get = WebAuthn::Credential.options_for_get(
+        allow: user.webauthn_credentials.pluck(:external_id)
+      )
+
+      session[:webauthn_challenge] = options_for_get.challenge
+
+      render json: options_for_get, status: :ok
+    else
+      flash[:error] = t("webauthn_credentials.not_enabled")
+      render json: { redirect_path: sign_in_path }, status: :unauthorized
+    end
+  end
+
   protected
 
   def find_user
     if session[:otp_user_id]
       User.find(session[:otp_user_id])
+    elsif session[:webauthn_user_id]
+      User.find(session[:webauthn_user_id])
     else
       user   = User.authenticate_with_ldap(user_params) if Devise.ldap_authentication
       user ||= User.authenticate_with_pam(user_params) if Devise.pam_authentication
@@ -49,7 +69,7 @@ class Auth::SessionsController < Devise::SessionsController
   end
 
   def user_params
-    params.require(:user).permit(:email, :password, :otp_attempt)
+    params.require(:user).permit(:email, :password, :otp_attempt, :credential)
   end
 
   def after_sign_in_path_for(resource)
@@ -71,7 +91,11 @@ class Auth::SessionsController < Devise::SessionsController
   end
 
   def two_factor_enabled?
-    find_user&.otp_required_for_login?
+    find_user&.otp_required_for_login? && !webauthn_enabled?
+  end
+
+  def webauthn_enabled?
+    find_user&.webauthn_required_for_login?
   end
 
   def valid_otp_attempt?(user)
@@ -79,6 +103,26 @@ class Auth::SessionsController < Devise::SessionsController
       user.invalidate_otp_backup_code!(user_params[:otp_attempt])
   rescue OpenSSL::Cipher::CipherError
     false
+  end
+
+  def valid_webauthn_credential?(user, webauthn_credential)
+    user_credential = user.webauthn_credentials.find_by!(external_id: webauthn_credential.id)
+
+    if webauthn_credential.user_handle.present?
+      return false unless user.webauthn_handle == webauthn_credential.user_handle
+    end
+
+    begin
+      webauthn_credential.verify(
+        session[:webauthn_challenge],
+        public_key: user_credential.public_key,
+        sign_count: user_credential.sign_count
+      )
+
+      user_credential.update!(sign_count: webauthn_credential.sign_count, last_used_on: Time.current)
+    rescue WebAuthn::Error
+      false
+    end
   end
 
   def authenticate_with_two_factor
@@ -91,6 +135,26 @@ class Auth::SessionsController < Devise::SessionsController
       # so credentials are already valid
 
       prompt_for_two_factor(user)
+    end
+  end
+
+  def authenticate_with_webauthn
+    user = self.resource = find_user
+
+    if params[:credential].present? && session[:webauthn_user_id]
+      webauthn_credential = WebAuthn::Credential.from_get(params[:credential])
+
+      if valid_webauthn_credential?(user, webauthn_credential)
+        session.delete(:webauthn_user_id)
+        remember_me(user)
+        sign_in(user)
+        render json: {}, status: :ok
+      else
+        flash.now[:alert] = "Invalid security key!"
+        render json: {}, status: :unauthorized
+      end
+    else
+      prompt_for_webauthn(user)
     end
   end
 
@@ -109,6 +173,11 @@ class Auth::SessionsController < Devise::SessionsController
     session[:otp_user_id] = user.id
     @body_classes = 'lighter'
     render :two_factor
+  end
+
+  def prompt_for_webauthn(user)
+    session[:webauthn_user_id] = user.id
+    render :webauthn
   end
 
   private

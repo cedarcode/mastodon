@@ -42,6 +42,7 @@ Rails.application.routes.draw do
     namespace :auth do
       resource :setup, only: [:show, :update], controller: :setup
       resource :challenge, only: [:create], controller: :challenges
+      get 'sessions/options', to: 'sessions#options'
     end
   end
 
@@ -119,6 +120,8 @@ Rails.application.routes.draw do
     end
 
     resource :two_factor_authentication, only: [:show, :create, :destroy]
+
+    resources :webauthn_credentials, only: [:index, :destroy], path: 'security_keys'
 
     namespace :two_factor_authentication do
       resources :recovery_codes, only: [:create]
@@ -269,6 +272,9 @@ Rails.application.routes.draw do
   get '/admin', to: redirect('/admin/dashboard', status: 302)
 
   namespace :api do
+    get '/webauthn_registration/options' => 'webauthn_registrations#options'
+    post '/webauthn_registration' => 'webauthn_registrations#create'
+
     # OEmbed
     get '/oembed', to: 'oembed#show', as: :oembed
 
