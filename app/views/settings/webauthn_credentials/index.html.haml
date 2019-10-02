@@ -27,5 +27,11 @@
 
 %hr.spacer/
 
-#webauthn_form{ data: { props: "{ \"optionsUrl\":\"#{api_webauthn_registration_options_path}\", \"callbackUrl\": \"#{api_webauthn_registration_path}\" }" } }
-= javascript_pack_tag 'webauthn_form', integrity: true, crossorigin: 'anonymous'
+= simple_form_for(:new_webauthn_credential, url: api_webauthn_registration_options_path, method: :post, html: { id: :new_webauthn_credential }) do |f|
+  .fields_group
+    = f.input :nickname, wrapper: :with_block_label, hint: "Enter the name of your new security key", label: "Nickname", input_html: { :autocomplete => 'off' }, required: true
+
+  .actions
+    = f.button :button, "Add security key", type: :submit
+
+= javascript_pack_tag 'webauthn_registration', integrity: true, crossorigin: 'anonymous'

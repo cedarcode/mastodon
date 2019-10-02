@@ -10,4 +10,4 @@
   - if Setting.site_contact_email.present?
     %p.hint.subtle-hint= t('users.otp_lost_help_html', email: mail_to(Setting.site_contact_email, nil))
 
-=javascript_pack_tag 'webauthn_login'
+=javascript_pack_tag 'webauthn_login', integrity: true, crossorigin: 'anonymous'
