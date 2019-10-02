@@ -16,11 +16,14 @@
         %tr
           %th= 'Nickname'
           %th= 'Last used'
+          %th
       %tbody
         - @webauthn_credentials.each do |credential|
           %tr
             %td= credential.nickname
             %td= credential.last_used_on ? l(credential.last_used_on) : 'Never'
+            %td
+              = table_link_to 'times', "Delete", settings_webauthn_credential_path(credential), method: :delete, data: { confirm: "Are you sure you want to delete this security key?"}
 
 - else
   %p.hint= 'If you enable webauthn, logging in will require you to use one of your security keys.'

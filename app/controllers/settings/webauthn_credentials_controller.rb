@@ -15,14 +15,14 @@ module Settings
       if credential
         credential.destroy
         if credential.destroyed?
-          flash[:success] = t(".success")
+          flash[:success] = "Your security key was successfully deleted"
         else
-          flash[:error] = t(".fail")
+          flash[:error] = "There was a problem deleting you security key. Please try again"
         end
       else
-        flash[:error] = t(".not_found")
+        flash[:error] = "We couldn't find your security key"
       end
-      redirect_to webauthn_credentials_url
+      redirect_to settings_webauthn_credentials_url
     end
   end
 end
