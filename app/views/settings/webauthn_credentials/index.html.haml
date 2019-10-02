@@ -30,7 +30,7 @@
 
 %hr.spacer/
 
-= simple_form_for(:new_webauthn_credential, url: api_webauthn_registration_options_path, method: :post, html: { id: :new_webauthn_credential }) do |f|
+= simple_form_for(:new_webauthn_credential, url: options_settings_webauthn_credentials_path, method: :post, html: { id: :new_webauthn_credential }) do |f|
   .fields_group
     = f.input :nickname, wrapper: :with_block_label, hint: "Enter the name of your new security key", label: "Nickname", input_html: { :autocomplete => 'off' }, required: true
 

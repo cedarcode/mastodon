@@ -6,7 +6,7 @@ const form = document.getElementById('new_webauthn_credential');
 form.addEventListener('submit', function(event) {
   event.preventDefault();
 
-  axios.get('/api/webauthn_registration/options')
+  axios.get('/settings/security_keys/options')
     .then(function(response) {
       const credentialOptions = response.data;
 
