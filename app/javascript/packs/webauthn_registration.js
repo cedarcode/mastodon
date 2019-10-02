@@ -13,7 +13,7 @@ form.addEventListener('submit', function(event) {
       WebAuthnJSON.create({ "publicKey": credentialOptions }).then(function(credential) {
         var nickname = event.target.querySelector("input[name='new_webauthn_credential[nickname]']").value;
         var params = {"credential": credential, "nickname": nickname}
-        WebAuthnHelper.callback('/api/webauthn_registration', params)
+        WebAuthnHelper.callback('/settings/security_keys', params)
       }).catch(function(error) {
         console.log(error);
       });
