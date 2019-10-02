@@ -25,11 +25,11 @@ module Settings
           flash[:success] = I18n.t('webauthn_credentials.create.success')
           status = :ok
         else
-          flash[:error] = I18n.t("webauthn_credentials.create.error")
+          flash[:error] = I18n.t('webauthn_credentials.create.error')
           status = :internal_server_error
         end
       else
-        flash[:error] = t("webauthn_credentials.create.error")
+        flash[:error] = t('webauthn_credentials.create.error')
         status = :unauthorized
       end
 
@@ -43,10 +43,10 @@ module Settings
         if credential.destroyed?
           flash[:success] = I18n.t('webauthn_credentials.destroy.success')
         else
-          flash[:error] = I18n.t("webauthn_credentials.destroy.error")
+          flash[:error] = I18n.t('webauthn_credentials.destroy.error')
         end
       else
-        flash[:error] = I18n.t("webauthn_credentials.destroy.error")
+        flash[:error] = I18n.t('webauthn_credentials.destroy.error')
       end
       redirect_to settings_webauthn_credentials_url
     end
@@ -58,7 +58,7 @@ module Settings
         user: {
           name: current_user.account.username,
           display_name: current_user.account.username,
-          id: current_user.webauthn_handle
+          id: current_user.webauthn_handle,
         },
         exclude: current_user.webauthn_credentials.pluck(:external_id)
       )
