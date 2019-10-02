@@ -148,7 +148,6 @@ class Auth::SessionsController < Devise::SessionsController
         session.delete(:webauthn_user_id)
         remember_me(user)
         sign_in(user)
-        byebug
         render json: { redirect_path: root_path }, status: :ok
       else
         flash.now[:alert] = "Invalid security key!"
