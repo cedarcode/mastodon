@@ -150,7 +150,7 @@ class Auth::SessionsController < Devise::SessionsController
         sign_in(user)
         render json: { redirect_path: root_path }, status: :ok
       else
-        flash.now[:alert] = "Invalid security key!"
+        flash.now[:alert] = t('webauthn_credentials.invalid_credential')
         render json: {}, status: :unauthorized
       end
     else

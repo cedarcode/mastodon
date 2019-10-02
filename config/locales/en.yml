@@ -1212,7 +1212,9 @@ en:
       success: Your security key was successfully deleted.
       error: There was a problem deleting you security key. Please try again.
     enabled: WebAuthn is enabled
+    invalid_credential: Invalid security key
     last_used: Last used on
     nickname: Nickname
     nickname_hint: Enter the name of your new security key
+    not_enabled: You haven't enabled WebAuthn yet
     not_used: Not used yet
