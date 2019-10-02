@@ -121,15 +121,15 @@ Rails.application.routes.draw do
 
     resource :two_factor_authentication, only: [:show, :create, :destroy]
 
-    resources :webauthn_credentials, only: [:index, :create, :destroy], path: 'security_keys' do
-      collection do
-        get 'options', to: 'webauthn_credentials#options'
-      end
-    end
-
     namespace :two_factor_authentication do
       resources :recovery_codes, only: [:create]
       resource :confirmation, only: [:new, :create]
+      resources :webauthn_credentials, only: [:new, :create, :destroy], path: 'security_keys' do
+        collection do
+          get 'options', to: 'webauthn_credentials#options'
+        end
+    end
+
     end
 
     resources :identity_proofs, only: [:index, :show, :new, :create, :update]

@@ -14,6 +14,7 @@ module Settings
 
     def show
       @confirmation = Form::TwoFactorConfirmation.new
+      @webauthn_credentials = current_user.webauthn_credentials
     end
 
     def create
@@ -31,6 +32,7 @@ module Settings
       else
         flash.now[:alert] = I18n.t('two_factor_authentication.wrong_code')
         @confirmation = Form::TwoFactorConfirmation.new
+        @webauthn_credentials = current_user.webauthn_credentials
         render :show
       end
     end

@@ -1207,14 +1207,15 @@ en:
       error: There was a problem adding your security key. Please try again.
     delete: Delete
     delete_confirmation: Are you sure you want to delete this security key?
-    description_html: If you enable webauthn, logging in will require you to use one of your security keys.
+    description_html: If you enable <strong>security key authentication</strong>, logging in will require you to use one of your security keys.
     destroy:
       success: Your security key was successfully deleted.
       error: There was a problem deleting you security key. Please try again.
-    enabled: WebAuthn is enabled
+    enabled: Security key authentication is enabled
     invalid_credential: Invalid security key
     last_used: Last used on
     nickname: Nickname
-    nickname_hint: Enter the name of your new security key
+    nickname_hint: Enter the nickname of your new security key
     not_enabled: You haven't enabled WebAuthn yet
     not_used: Not used yet
+    setup: Set up

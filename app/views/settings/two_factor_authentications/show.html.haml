@@ -19,6 +19,9 @@
 
   %hr.spacer/
 
+  %h3= "Security keys"
+  = render 'settings/two_factor_authentication/webauthn_credentials/index'
+
   %h3= t('two_factor_authentication.recovery_codes')
   %p.muted-hint= t('two_factor_authentication.lost_recovery_codes')
 
