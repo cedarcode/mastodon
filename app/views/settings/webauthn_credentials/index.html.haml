@@ -6,7 +6,7 @@
     %span.positive-hint
       = fa_icon 'check'
       = ' '
-      = 'WebAuthn is enabled'
+      = t 'webauthn_credentials.enabled'
 
   %hr.spacer/
 
@@ -14,27 +14,27 @@
     %table.table
       %thead
         %tr
-          %th= 'Nickname'
-          %th= 'Last used'
+          %th= t 'webauthn_credentials.nickname'
+          %th= t 'webauthn_credentials.last_used'
           %th
       %tbody
         - @webauthn_credentials.each do |credential|
           %tr
             %td= credential.nickname
-            %td= credential.last_used_on ? l(credential.last_used_on) : 'Never'
+            %td= credential.last_used_on ? l(credential.last_used_on) : t('webauthn_credentials.not_used')
             %td
-              = table_link_to 'times', "Delete", settings_webauthn_credential_path(credential), method: :delete, data: { confirm: "Are you sure you want to delete this security key?"}
+              = table_link_to 'times', t('webauthn_credentials.delete'), settings_webauthn_credential_path(credential), method: :delete, data: { confirm: t('webauthn_credentials.delete_confirmation') }
 
 - else
-  %p.hint= 'If you enable webauthn, logging in will require you to use one of your security keys.'
+  %p.hint= t('webauthn_credentials.description_html')
 
 %hr.spacer/
 
 = simple_form_for(:new_webauthn_credential, url: options_settings_webauthn_credentials_path, method: :post, html: { id: :new_webauthn_credential }) do |f|
   .fields_group
-    = f.input :nickname, wrapper: :with_block_label, hint: "Enter the name of your new security key", label: "Nickname", input_html: { :autocomplete => 'off' }, required: true
+    = f.input :nickname, wrapper: :with_block_label, hint: t('webauthn_credentials.nickname_hint'), input_html: { :autocomplete => 'off' }, required: true
 
   .actions
-    = f.button :button, "Add security key", type: :submit
+    = f.button :button, t('webauthn_credentials.add'), type: :submit
 
 = javascript_pack_tag 'webauthn_registration', integrity: true, crossorigin: 'anonymous'

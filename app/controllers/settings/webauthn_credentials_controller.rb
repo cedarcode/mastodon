@@ -22,14 +22,14 @@ module Settings
         )
 
         if user_credential.save
-          flash[:success] = 'Your security key was correctly added!'
+          flash[:success] = I18n.t('webauthn_credentials.create.success')
           status = :ok
         else
-          flash[:error] = t(".fail")
+          flash[:error] = I18n.t("webauthn_credentials.create.error")
           status = :internal_server_error
         end
       else
-        flash[:error] = t("internal.webauthn_sessions.incorrect_security_key")
+        flash[:error] = t("webauthn_credentials.create.error")
         status = :unauthorized
       end
 
@@ -41,12 +41,12 @@ module Settings
       if credential
         credential.destroy
         if credential.destroyed?
-          flash[:success] = "Your security key was successfully deleted"
+          flash[:success] = I18n.t('webauthn_credentials.destroy.success')
         else
-          flash[:error] = "There was a problem deleting you security key. Please try again"
+          flash[:error] = I18n.t("webauthn_credentials.destroy.error")
         end
       else
-        flash[:error] = "We couldn't find your security key"
+        flash[:error] = I18n.t("webauthn_credentials.destroy.error")
       end
       redirect_to settings_webauthn_credentials_url
     end

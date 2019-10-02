@@ -997,6 +997,7 @@ en:
     profile: Profile
     relationships: Follows and followers
     two_factor_authentication: Two-factor Auth
+    webauthn_authentication: Security key Auth
   spam_check:
     spam_detected_and_silenced: This is an automated report. Spam has been detected and the sender has been silenced automatically. If this is a mistake, please unsilence the account.
   statuses:
@@ -1199,3 +1200,19 @@ en:
   verification:
     explanation_html: 'You can <strong>verify yourself as the owner of the links in your profile metadata</strong>. For that, the linked website must contain a link back to your Mastodon profile. The link back <strong>must</strong> have a <code>rel="me"</code> attribute. The text content of the link does not matter. Here is an example:'
     verification: Verification
+  webauthn_credentials:
+    add: Add new security key
+    create:
+      success: Your security key was successfully added.
+      error: There was a problem adding your security key. Please try again.
+    delete: Delete
+    delete_confirmation: Are you sure you want to delete this security key?
+    description_html: If you enable webauthn, logging in will require you to use one of your security keys.
+    destroy:
+      success: Your security key was successfully deleted.
+      error: There was a problem deleting you security key. Please try again.
+    enabled: WebAuthn is enabled
+    last_used: Last used on
+    nickname: Nickname
+    nickname_hint: Enter the name of your new security key
+    not_used: Not used yet
