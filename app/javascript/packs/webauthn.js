@@ -19,6 +19,9 @@ function callback(url, body) {
     credentials: 'same-origin'
   }).then(function(response) {
     window.location.replace(response.data["redirect_path"]);
+  }).catch(function(error) {
+    window.location.reload();
+    console.log(error);
   });
 }
 
