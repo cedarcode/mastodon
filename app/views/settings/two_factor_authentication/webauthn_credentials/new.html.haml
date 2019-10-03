@@ -3,7 +3,7 @@
 
 %p.hint= t('webauthn_credentials.description_html')
 
-= simple_form_for(:new_webauthn_credential, url: options_settings_two_factor_authentication_webauthn_credentials_path, method: :post, html: { id: :new_webauthn_credential }) do |f|
+= simple_form_for(:new_webauthn_credential, url: options_settings_two_factor_authentication_webauthn_credentials_path, html: { id: :new_webauthn_credential }) do |f|
   .fields_group
     = f.input :nickname, wrapper: :with_block_label, hint: t('webauthn_credentials.nickname_hint'), input_html: { :autocomplete => 'off' }, required: true
 
