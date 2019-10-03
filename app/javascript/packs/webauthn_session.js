@@ -6,7 +6,7 @@ const form = document.getElementById('edit_user');
 form.addEventListener('submit', function(event) {
   event.preventDefault();
 
-  axios.get('sessions/options')
+  axios.get('sessions/security_key_options')
     .then(function(response) {
       const credentialOptions = response.data;
 

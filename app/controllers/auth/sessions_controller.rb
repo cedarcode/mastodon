@@ -37,7 +37,7 @@ class Auth::SessionsController < Devise::SessionsController
     store_location_for(:user, tmp_stored_location) if continue_after?
   end
 
-  def options
+  def webauthn_options
     user = find_user
 
     if webauthn_enabled?

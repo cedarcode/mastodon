@@ -42,7 +42,7 @@ Rails.application.routes.draw do
     namespace :auth do
       resource :setup, only: [:show, :update], controller: :setup
       resource :challenge, only: [:create], controller: :challenges
-      get 'sessions/options', to: 'sessions#options'
+      get 'sessions/security_key_options', to: 'sessions#webauthn_options'
     end
   end
 
