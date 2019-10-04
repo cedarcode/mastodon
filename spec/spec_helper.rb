@@ -1,5 +1,7 @@
 GC.disable
 
+ENV["WEBAUTHN_ORIGIN"] ||= "http://test.host"
+
 if ENV['DISABLE_SIMPLECOV'] != 'true'
   require 'simplecov'
   SimpleCov.start 'rails' do

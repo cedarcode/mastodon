@@ -6,6 +6,8 @@ module Settings
       layout 'admin'
 
       before_action :authenticate_user!
+      before_action :require_otp_enabled
+      before_action :require_webauthn_enabled, only: :destroy
 
       def new
       end
@@ -66,6 +68,22 @@ module Settings
         session[:webauthn_challenge] = options_for_create.challenge
 
         render json: options_for_create, status: :ok
+      end
+
+      private
+
+      def require_otp_enabled
+        if not current_user.otp_required_for_login
+          flash[:error] = t('webauthn_credentials.otp_required')
+          render json: { redirect_path: settings_two_factor_authentication_path }, status: :forbidden
+        end
+      end
+
+      def require_webauthn_enabled
+        if not current_user.webauthn_required_for_login?
+          flash[:error] = t('webauthn_credentials.destroy.webatuhn_required')
+          render json: { redirect_path: settings_two_factor_authentication_path }, status: :forbidden
+        end
       end
     end
   end

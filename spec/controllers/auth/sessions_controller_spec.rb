@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'webauthn/fake_client'
 
 RSpec.describe Auth::SessionsController, type: :controller do
   render_views
@@ -269,6 +270,88 @@ RSpec.describe Auth::SessionsController, type: :controller do
           expect(controller.current_user).to be_nil
         end
       end
+    end
+
+    context 'using webauthn authentication' do
+      let!(:user) do
+        Fabricate(:user, email: 'x@y.com', password: 'abcdefgh', otp_required_for_login: true)
+      end
+
+      let!(:webauthn_credential) do
+        user.update(webauthn_handle: WebAuthn.generate_user_id)
+        public_key_credential = WebAuthn::Credential.from_create(fake_client.create)
+        user.webauthn_credentials.create(
+          nickname: 'SecurityKeyNickname',
+          external_id: public_key_credential.id,
+          public_key: public_key_credential.public_key,
+          sign_count: '1000'
+         )
+        user.webauthn_credentials.take
+      end
+
+      let(:fake_client) { WebAuthn::FakeClient.new("http://test.host") }
+
+      let(:challenge) { WebAuthn::Credential.options_for_get.challenge }
+
+      let(:sign_count) { 1234 }
+
+      let(:fake_credential) { fake_client.get(challenge: challenge, sign_count: sign_count) }
+
+      context 'using email and password' do
+        before do
+          post :create, params: { user: { email: user.email, password: user.password } }
+        end
+
+        it 'renders webauthn authentication page' do
+          expect(controller).to render_template("webauthn")
+        end
+      end
+
+      context 'using upcase email and password' do
+        before do
+          post :create, params: { user: { email: user.email.upcase, password: user.password } }
+        end
+
+        it 'renders webauthn authentication page' do
+          expect(controller).to render_template("webauthn")
+        end
+      end
+
+      context 'using a valid webauthn credential' do
+        before do
+          @controller.session[:webauthn_challenge] = challenge
+          @controller.session[:webauthn_user_id] = user.id
+        end
+
+        it 'instructs the browser to redirect to home' do
+          post :create, params: { credential: fake_credential }
+          expect(body_as_json[:redirect_path]).to eq(root_path)
+        end
+
+        it 'logs the user in' do
+          post :create, params: { credential: fake_credential }
+          expect(controller.current_user).to eq user
+        end
+
+        it 'updates the sign count' do
+          post :create, params: { credential: fake_credential }
+          expect(webauthn_credential.reload.sign_count).to eq(sign_count)
+        end
+
+        it 'updates the last_used_on field' do
+          current_time = Time.current
+          allow(Time).to receive(:current).and_return(current_time)
+          post :create, params: { credential: fake_credential }
+
+          expect(webauthn_credential.reload.last_used_on).to eq(current_time)
+        end
+
+        it 'clears the webauthn user id on the session' do
+          post :create, params: { credential: fake_credential }
+          expect(@controller.session[:webauthn_user_id]).to be_nil
+        end
+      end
+
     end
   end
 end

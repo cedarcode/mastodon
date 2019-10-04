@@ -1211,6 +1211,7 @@ en:
     destroy:
       success: Your security key was successfully deleted.
       error: There was a problem deleting you security key. Please try again.
+      webatuhn_required: You need to enable security keys before you can delete one.
     enabled: Security key authentication is enabled
     invalid_credential: Invalid security key
     last_used: Last used on
@@ -1218,4 +1219,5 @@ en:
     nickname_hint: Enter the nickname of your new security key
     not_enabled: You haven't enabled WebAuthn yet
     not_used: Not used yet
+    otp_required: To use security keys please enable two-factor authentication first.
     setup: Set up

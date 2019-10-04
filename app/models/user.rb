@@ -292,7 +292,7 @@ class User < ApplicationRecord
   end
 
   def webauthn_required_for_login?
-    webauthn_credentials.any?
+    otp_required_for_login && webauthn_credentials.any?
   end
 
   protected
