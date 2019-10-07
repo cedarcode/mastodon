@@ -28,6 +28,15 @@ function callback(url, body) {
 }
 
 ready(() => {
+  if (!WebAuthnJSON.supported()) {
+    const unsupported_browser_message = document.getElementById('unsupported-browser-message');
+    if (unsupported_browser_message) {
+      unsupported_browser_message.style.display = 'block';
+      document.querySelector('.btn.js-webauthn').disabled = true;
+    }
+  }
+
+
   const registration_form = document.getElementById('new_webauthn_credential');
   if (registration_form) {
     registration_form.addEventListener('submit', (event) => {

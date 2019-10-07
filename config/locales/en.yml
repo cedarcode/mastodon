@@ -1218,6 +1218,7 @@ en:
     nickname: Nickname
     nickname_hint: Enter the nickname of your new security key
     not_enabled: You haven't enabled WebAuthn yet
+    not_supported: This browser doesn't support security keys
     not_used: Not used yet
     otp_required: To use security keys please enable two-factor authentication first.
     setup: Set up

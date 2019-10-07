@@ -1,6 +1,8 @@
 - content_for :page_title do
   = 'Security keys'
 
+%p.flash-message#unsupported-browser-message{ style: 'display: none' }= t 'webauthn_credentials.not_supported'
+
 %p.hint= t('webauthn_credentials.description_html')
 
 = simple_form_for(:new_webauthn_credential, url: options_settings_two_factor_authentication_webauthn_credentials_path, html: { id: :new_webauthn_credential }) do |f|
@@ -8,6 +10,6 @@
     = f.input :nickname, wrapper: :with_block_label, hint: t('webauthn_credentials.nickname_hint'), input_html: { :autocomplete => 'off' }, required: true
 
   .actions
-    = f.button :button, t('webauthn_credentials.add'), type: :submit
+    = f.button :button, t('webauthn_credentials.add'), class: 'js-webauthn', type: :submit
 
 = javascript_pack_tag 'webauthn', integrity: true, crossorigin: 'anonymous'
