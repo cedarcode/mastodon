@@ -13,11 +13,10 @@ describe Settings::TwoFactorAuthentication::WebauthnCredentialsController do
   def add_webauthn_credential(user)
     public_key_credential = WebAuthn::Credential.from_create(fake_client.create)
     Fabricate(:webauthn_credential,
-      user_id: user.id,
-      external_id: public_key_credential.id,
-      public_key: public_key_credential.public_key,
-      nickname: original_nickname
-     )
+              user_id: user.id,
+              external_id: public_key_credential.id,
+              public_key: public_key_credential.public_key,
+              nickname: original_nickname)
   end
 
   describe 'GET /options #options' do
@@ -133,10 +132,33 @@ describe Settings::TwoFactorAuthentication::WebauthnCredentialsController do
           end
         end
 
-        context 'when user already used the nickname' do
+        context 'when the nickname is already used' do
           it 'fails' do
             @controller.session[:webauthn_challenge] = challenge
             post :create, params: { credential: new_webauthn_credential, nickname: original_nickname }
+            expect(response).to have_http_status(500)
+          end
+
+          it 'sets flash error' do
+            @controller.session[:webauthn_challenge] = challenge
+            post :create, params: { credential: new_webauthn_credential, nickname: original_nickname }
+            expect(flash[:error]).to be_present
+          end
+        end
+
+        context 'when the credential already exists' do
+          before do
+            user2 = Fabricate(:user)
+            public_key_credential = WebAuthn::Credential.from_create(new_webauthn_credential)
+            Fabricate(:webauthn_credential,
+                      user_id: user2.id,
+                      external_id: public_key_credential.id,
+                      public_key: public_key_credential.public_key)
+          end
+
+          it 'fails' do
+            @controller.session[:webauthn_challenge] = challenge
+            post :create, params: { credential: new_webauthn_credential, nickname: nickname }
             expect(response).to have_http_status(500)
           end
 
