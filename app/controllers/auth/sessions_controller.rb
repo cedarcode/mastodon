@@ -177,6 +177,7 @@ class Auth::SessionsController < Devise::SessionsController
 
   def prompt_for_webauthn(user)
     session[:webauthn_user_id] = user.id
+    @body_classes = 'lighter'
     render :webauthn
   end
 
