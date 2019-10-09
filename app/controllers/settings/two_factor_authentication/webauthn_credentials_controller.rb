@@ -26,6 +26,12 @@ module Settings
           if user_credential.save
             flash[:success] = I18n.t('webauthn_credentials.create.success')
             status = :ok
+
+            if current_user.webauthn_credentials.size == 1
+              UserMailer.webauthn_enabled(current_user).deliver_later!
+            else
+              UserMailer.webauthn_credential_added(current_user, user_credential).deliver_later!
+            end
           else
             flash[:error] = I18n.t('webauthn_credentials.create.error')
             status = :internal_server_error
@@ -44,6 +50,12 @@ module Settings
           credential.destroy
           if credential.destroyed?
             flash[:success] = I18n.t('webauthn_credentials.destroy.success')
+
+            if current_user.webauthn_credentials.size == 0
+              UserMailer.webauthn_disabled(current_user).deliver_later!
+            else
+              UserMailer.webauthn_credential_deleted(current_user, credential).deliver_later!
+            end
           else
             flash[:error] = I18n.t('webauthn_credentials.destroy.error')
           end
