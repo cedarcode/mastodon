@@ -8,13 +8,15 @@ describe Settings::TwoFactorAuthentication::WebauthnCredentialsController do
 
   let(:user) { Fabricate(:user) }
   let(:fake_client) { WebAuthn::FakeClient.new("http://test.host") }
+  let(:original_nickname) { 'Security key' }
 
   def add_webauthn_credential(user)
     public_key_credential = WebAuthn::Credential.from_create(fake_client.create)
     Fabricate(:webauthn_credential,
       user_id: user.id,
       external_id: public_key_credential.id,
-      public_key: public_key_credential.public_key
+      public_key: public_key_credential.public_key,
+      nickname: original_nickname
      )
   end
 
@@ -128,6 +130,20 @@ describe Settings::TwoFactorAuthentication::WebauthnCredentialsController do
             post :create, params: { credential: new_webauthn_credential, nickname: nickname }
 
             expect(user.reload.webauthn_handle).to eq(before)
+          end
+        end
+
+        context 'when user already used the nickname' do
+          it 'fails' do
+            @controller.session[:webauthn_challenge] = challenge
+            post :create, params: { credential: new_webauthn_credential, nickname: original_nickname }
+            expect(response).to have_http_status(500)
+          end
+
+          it 'sets flash error' do
+            @controller.session[:webauthn_challenge] = challenge
+            post :create, params: { credential: new_webauthn_credential, nickname: original_nickname }
+            expect(flash[:error]).to be_present
           end
         end
       end
