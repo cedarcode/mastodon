@@ -17,6 +17,6 @@
 class WebauthnCredential < ApplicationRecord
   validates :external_id, :public_key, :nickname, presence: true
   validates :external_id, uniqueness: true
-  validates :nickname, uniqueness:  { scope: :user_id }
+  validates :nickname, uniqueness: { scope: :user_id }
   belongs_to :user
 end

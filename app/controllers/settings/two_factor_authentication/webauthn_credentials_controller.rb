@@ -9,8 +9,7 @@ module Settings
       before_action :require_otp_enabled
       before_action :require_webauthn_enabled, only: :destroy
 
-      def new
-      end
+      def new; end
 
       def create
         webauthn_credential = WebAuthn::Credential.from_create(params[:credential])
@@ -51,7 +50,7 @@ module Settings
           if credential.destroyed?
             flash[:success] = I18n.t('webauthn_credentials.destroy.success')
 
-            if current_user.webauthn_credentials.size == 0
+            if current_user.webauthn_credentials.empty?
               UserMailer.webauthn_disabled(current_user).deliver_later!
             else
               UserMailer.webauthn_credential_deleted(current_user, credential).deliver_later!
@@ -85,14 +84,14 @@ module Settings
       private
 
       def require_otp_enabled
-        if not current_user.otp_required_for_login
+        unless current_user.otp_required_for_login
           flash[:error] = t('webauthn_credentials.otp_required')
           render json: { redirect_path: settings_two_factor_authentication_path }, status: :forbidden
         end
       end
 
       def require_webauthn_enabled
-        if not current_user.webauthn_required_for_login?
+        unless current_user.webauthn_required_for_login?
           flash[:error] = t('webauthn_credentials.destroy.webatuhn_required')
           render json: { redirect_path: settings_two_factor_authentication_path }, status: :forbidden
         end

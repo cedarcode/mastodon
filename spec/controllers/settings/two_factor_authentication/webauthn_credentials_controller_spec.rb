@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require "webauthn/fake_client"
+require 'webauthn/fake_client'
 
 describe Settings::TwoFactorAuthentication::WebauthnCredentialsController do
   render_views
 
   let(:user) { Fabricate(:user) }
-  let(:fake_client) { WebAuthn::FakeClient.new("http://test.host") }
+  let(:fake_client) { WebAuthn::FakeClient.new('http://test.host') }
   let(:original_nickname) { 'Security key' }
 
   def add_webauthn_credential(user)
@@ -21,9 +21,9 @@ describe Settings::TwoFactorAuthentication::WebauthnCredentialsController do
 
   describe 'GET /options #options' do
     context 'when signed in' do
-        before do
-          sign_in user, scope: :user
-        end
+      before do
+        sign_in user, scope: :user
+      end
 
       context 'when user requires webauthn for login already' do
         before do
@@ -50,7 +50,7 @@ describe Settings::TwoFactorAuthentication::WebauthnCredentialsController do
 
         it "doesn't allow to add an existing credential" do
           get :options
-          credential_id = JSON.parse(response.body)["excludeCredentials"][0]["id"]
+          credential_id = JSON.parse(response.body)['excludeCredentials'][0]['id']
           expect(user.webauthn_credentials.pluck(:external_id)).to include(credential_id)
         end
       end
@@ -241,7 +241,6 @@ describe Settings::TwoFactorAuthentication::WebauthnCredentialsController do
               expect(user.webauthn_required_for_login?).to be false
             end
           end
-
         end
       end
 
