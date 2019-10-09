@@ -14,6 +14,7 @@ describe Admin::TwoFactorAuthenticationsController do
 
       user.reload
       expect(user.otp_required_for_login).to eq false
+      expect(user.webauthn_required_for_login?).to eq false
       expect(response).to redirect_to(admin_accounts_path)
     end
   end

@@ -90,6 +90,18 @@ class UserMailer < Devise::Mailer
     end
   end
 
+  def webauthn_disabled(user, **)
+    @resource = user
+    @instance = Rails.configuration.x.local_domain
+
+    return if @resource.disabled?
+
+    I18n.with_locale(@resource.locale || I18n.default_locale) do
+      mail to: @resource.email, subject: I18n.t('devise.mailer.webauthn_disabled.subject')
+    end
+  end
+
+
   def welcome(user)
     @resource = user
     @instance = Rails.configuration.x.local_domain

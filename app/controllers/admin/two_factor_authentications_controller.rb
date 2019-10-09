@@ -6,9 +6,13 @@ module Admin
 
     def destroy
       authorize @user, :disable_2fa?
+      authorize @user, :disable_webauthn?
       @user.disable_two_factor!
+      @user.disable_webauthn!
       log_action :disable_2fa, @user
+      log_action :disable_webauthn, @user
       UserMailer.two_factor_disabled(@user).deliver_later!
+      UserMailer.webauthn_disabled(@user).deliver_later!
       redirect_to admin_accounts_path
     end
 

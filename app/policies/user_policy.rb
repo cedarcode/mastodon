@@ -13,6 +13,10 @@ class UserPolicy < ApplicationPolicy
     admin? && !record.staff?
   end
 
+  def disable_webauthn?
+    admin? && !record.staff?
+  end
+
   def confirm?
     staff? && !record.confirmed?
   end

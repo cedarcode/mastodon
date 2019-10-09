@@ -199,6 +199,11 @@ class User < ApplicationRecord
     save!
   end
 
+  def disable_webauthn!
+    webauthn_credentials.destroy_all
+    save!
+  end
+
   def setting_default_privacy
     settings.default_privacy || (account.locked? ? 'private' : 'public')
   end
