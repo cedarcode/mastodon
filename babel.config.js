@@ -19,6 +19,14 @@ module.exports = (api) => {
       '@babel/proposal-class-properties',
       ['react-intl', { messagesDir: './build/messages' }],
       'preval',
+      [
+        '@babel/transform-runtime',
+        {
+          helpers: true,
+          regenerator: true,
+          useESModules: true,
+        },
+      ],
     ],
     overrides: [{
       test: /tesseract\.js/,
@@ -44,14 +52,6 @@ module.exports = (api) => {
         },
       ],
       '@babel/transform-react-inline-elements',
-      [
-        '@babel/transform-runtime',
-        {
-          helpers: true,
-          regenerator: false,
-          useESModules: true,
-        },
-      ],
     ]);
     break;
   case 'development':
