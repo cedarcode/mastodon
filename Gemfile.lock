@@ -661,7 +661,7 @@ GEM
     uniform_notifier (1.12.1)
     warden (1.2.8)
       rack (>= 2.0.6)
-    webauthn (2.0.0.beta1)
+    webauthn (2.0.0)
       awrence (~> 1.1)
       bindata (~> 2.4)
       cbor (~> 0.5.9)
@@ -811,7 +811,7 @@ DEPENDENCIES
   tty-prompt (~> 0.19)
   twitter-text (~> 1.14)
   tzinfo-data (~> 1.2019)
-  webauthn (~> 2.0.0.a)
+  webauthn (~> 2.0)
   webmock (~> 3.7)
   webpacker (~> 4.0)
   webpush
