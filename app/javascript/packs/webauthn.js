@@ -41,6 +41,8 @@ ready(() => {
   if (registration_form) {
     registration_form.addEventListener('submit', (event) => {
       event.preventDefault();
+      var errorMessage = document.getElementById('security-key-error-message')
+      errorMessage.style.display = 'none';
 
       var nickname = event.target.querySelector("input[name='new_webauthn_credential[nickname]']");
       if (!nickname.value) {
@@ -56,6 +58,7 @@ ready(() => {
             var params = { "credential": credential, "nickname": nickname.value }
             callback('/settings/two_factor_authentication/security_keys', params)
           }).catch((error) => {
+            errorMessage.style.display = 'block';
             console.log(error);
           });
         })
@@ -66,6 +69,8 @@ ready(() => {
   if (authentication_form) {
     authentication_form.addEventListener('submit', (event) => {
       event.preventDefault();
+      var errorMessage = document.getElementById('security-key-error-message')
+      errorMessage.style.display = 'none';
 
       axios.get('sessions/security_key_options')
         .then((response) => {
@@ -74,6 +79,7 @@ ready(() => {
           WebAuthnJSON.get({ "publicKey": credentialOptions }).then((credential) => {
             callback("sign_in", { "credential": credential });
           }).catch((error) => {
+            errorMessage.style.display = 'block';
             console.log(error);
           });
         })

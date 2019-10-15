@@ -2,6 +2,7 @@
   = t('auth.login')
 
 %p.flash-message#unsupported-browser-message{ style: 'display: none' }= t 'webauthn_credentials.not_supported'
+%p.flash-message.alert#security-key-error-message{ style: 'display: none' }= t 'webauthn_credentials.invalid_credential'
 
 = simple_form_for(resource, as: resource_name, url: session_path(resource_name), method: :post) do |f|
   %p.hint{ style: 'margin-bottom: 25px' }= t('simple_form.hints.sessions.webauthn')

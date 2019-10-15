@@ -2,6 +2,7 @@
   = 'Security keys'
 
 %p.flash-message#unsupported-browser-message{ style: 'display: none' }= t 'webauthn_credentials.not_supported'
+%p.flash-message.alert#security-key-error-message{ style: 'display: none' }= t 'webauthn_credentials.invalid_credential'
 
 %p.hint= t('webauthn_credentials.description_html')
 
