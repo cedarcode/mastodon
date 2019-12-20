@@ -153,7 +153,7 @@ class Auth::SessionsController < Devise::SessionsController
         flash.now[:alert] = t('webauthn_credentials.invalid_credential')
         render json: {}, status: :unauthorized
       end
-    else
+    elsif user.present? && (user.encrypted_password.blank? || user.valid_password?(user_params[:password]))
       prompt_for_webauthn(user)
     end
   end
