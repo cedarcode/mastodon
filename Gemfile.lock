@@ -243,7 +243,7 @@ GEM
       tzinfo
     excon (0.99.0)
     fabrication (2.30.0)
-    faker (3.2.0)
+    faker (3.2.1)
       i18n (>= 1.8.11, < 2)
     faraday (1.10.3)
       faraday-em_http (~> 1.0)
@@ -331,7 +331,7 @@ GEM
     httplog (1.6.2)
       rack (>= 2.0)
       rainbow (>= 2.0.0)
-    i18n (1.13.0)
+    i18n (1.14.1)
       concurrent-ruby (~> 1.0)
     i18n-tasks (1.0.12)
       activesupport (>= 4.0.2)
