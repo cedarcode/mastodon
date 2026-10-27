@@ -33,8 +33,7 @@ module Settings
       end
 
       def create
-        webauthn_credential = WebAuthn::Credential.from_create(params[:credential])
-        redirect_path = settings_two_factor_authentication_methods_path
+        webauthn_credential = WebAuthn::Credential.from_create(JSON.parse(params.require(:credential)))
 
         if webauthn_credential.verify(session[:webauthn_challenge])
           user_credential = current_user.webauthn_credentials.build(
@@ -45,14 +44,9 @@ module Settings
           )
 
           if user_credential.save
-            flash[:success] = I18n.t('webauthn_credentials.create.success')
-            status = :ok
-
             if current_user.otp_backup_codes.blank?
-              session[:new_recovery_codes] = current_user.generate_otp_backup_codes!
+              @recovery_codes = current_user.generate_otp_backup_codes!
               current_user.save!
-
-              redirect_path = settings_two_factor_authentication_recovery_codes_path
             end
 
             if current_user.webauthn_credentials.size == 1
@@ -60,16 +54,21 @@ module Settings
             else
               UserMailer.webauthn_credential_added(current_user, user_credential).deliver_later!
             end
+
+            if @recovery_codes
+              flash.now[:success] = I18n.t('webauthn_credentials.create.success')
+              render 'settings/two_factor_authentication/recovery_codes/index'
+            else
+              redirect_to settings_two_factor_authentication_methods_path, flash: { success: I18n.t('webauthn_credentials.create.success') }
+            end
           else
-            flash[:error] = I18n.t('webauthn_credentials.create.error')
-            status = :unprocessable_content
+            render_creation_error(:unprocessable_content)
           end
         else
-          flash[:error] = t('webauthn_credentials.create.error')
-          status = :unauthorized
+          render_creation_error(:unauthorized)
         end
-
-        render json: { redirect_path: redirect_path }, status: status
+      rescue JSON::ParserError, WebAuthn::Error
+        render_creation_error(:unprocessable_content)
       end
 
       def destroy
@@ -97,6 +96,11 @@ module Settings
       end
 
       private
+
+      def render_creation_error(status)
+        flash.now[:error] = I18n.t('webauthn_credentials.create.error')
+        render :new, status: status
+      end
 
       def redirect_invalid_webauthn
         redirect_to settings_two_factor_authentication_methods_path, flash: { error: t('webauthn_credentials.not_enabled') }

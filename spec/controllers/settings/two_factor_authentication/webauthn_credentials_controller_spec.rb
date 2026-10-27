@@ -26,6 +26,12 @@ RSpec.describe Settings::TwoFactorAuthentication::WebauthnCredentialsController 
 
           expect(response).to have_http_status(200)
         end
+
+        it 'renders the add button disabled until the JavaScript enables it' do
+          get :new, session: { challenge_passed_at: Time.now.utc }
+
+          expect(response.parsed_body).to have_css('button.js-webauthn[disabled]')
+        end
       end
 
       context 'when challenge not passed' do
@@ -169,7 +175,7 @@ RSpec.describe Settings::TwoFactorAuthentication::WebauthnCredentialsController 
           it 'returns http success' do
             controller.session[:webauthn_challenge] = challenge
 
-            post :create, params: { credential: new_webauthn_credential, nickname: nickname }
+            post :create, params: { credential: new_webauthn_credential.to_json, nickname: nickname }
 
             expect(response).to have_http_status(200)
           end
@@ -178,7 +184,7 @@ RSpec.describe Settings::TwoFactorAuthentication::WebauthnCredentialsController 
             controller.session[:webauthn_challenge] = challenge
 
             expect do
-              post :create, params: { credential: new_webauthn_credential, nickname: nickname }
+              post :create, params: { credential: new_webauthn_credential.to_json, nickname: nickname }
             end.to change { user.webauthn_credentials.count }.by(1)
           end
 
@@ -186,7 +192,7 @@ RSpec.describe Settings::TwoFactorAuthentication::WebauthnCredentialsController 
             controller.session[:webauthn_challenge] = challenge
 
             expect do
-              post :create, params: { credential: new_webauthn_credential, nickname: nickname }
+              post :create, params: { credential: new_webauthn_credential.to_json, nickname: nickname }
             end.to_not change(user, :webauthn_id)
           end
 
@@ -203,7 +209,7 @@ RSpec.describe Settings::TwoFactorAuthentication::WebauthnCredentialsController 
               controller.session[:webauthn_challenge] = challenge
 
               expect do
-                post :create, params: { credential: new_webauthn_credential, nickname: nickname }
+                post :create, params: { credential: new_webauthn_credential.to_json, nickname: nickname }
               end.to(not_change { user.reload.otp_secret })
             end
 
@@ -211,16 +217,16 @@ RSpec.describe Settings::TwoFactorAuthentication::WebauthnCredentialsController 
               controller.session[:webauthn_challenge] = challenge
 
               expect do
-                post :create, params: { credential: new_webauthn_credential, nickname: nickname }
+                post :create, params: { credential: new_webauthn_credential.to_json, nickname: nickname }
               end.to(not_change { user.reload.otp_backup_codes })
             end
 
             it 'redirects to two factor authentication methods index' do
               controller.session[:webauthn_challenge] = challenge
 
-              post :create, params: { credential: new_webauthn_credential, nickname: nickname }
+              post :create, params: { credential: new_webauthn_credential.to_json, nickname: nickname }
 
-              expect(response.parsed_body['redirect_path']).to eq settings_two_factor_authentication_methods_path
+              expect(response).to redirect_to settings_two_factor_authentication_methods_path
             end
           end
 
@@ -237,7 +243,7 @@ RSpec.describe Settings::TwoFactorAuthentication::WebauthnCredentialsController 
               controller.session[:webauthn_challenge] = challenge
 
               expect do
-                post :create, params: { credential: new_webauthn_credential, nickname: nickname }
+                post :create, params: { credential: new_webauthn_credential.to_json, nickname: nickname }
               end.to change { user.reload.otp_backup_codes.size }.from(0).to(User.otp_number_of_backup_codes)
                 .and(not_change { user.reload.otp_secret })
             end
@@ -248,7 +254,7 @@ RSpec.describe Settings::TwoFactorAuthentication::WebauthnCredentialsController 
               controller.session[:webauthn_challenge] = challenge
 
               expect do
-                post :create, params: { credential: new_webauthn_credential, nickname: nickname }
+                post :create, params: { credential: new_webauthn_credential.to_json, nickname: nickname }
               end.to(not_change { user.reload.otp_secret })
             end
 
@@ -256,25 +262,30 @@ RSpec.describe Settings::TwoFactorAuthentication::WebauthnCredentialsController 
               controller.session[:webauthn_challenge] = challenge
 
               expect do
-                post :create, params: { credential: new_webauthn_credential, nickname: nickname }
+                post :create, params: { credential: new_webauthn_credential.to_json, nickname: nickname }
               end.to(change { user.reload.otp_backup_codes })
             end
 
-            it 'stores the generated recovery codes in the session' do
+            it 'renders the generated recovery codes' do
               controller.session[:webauthn_challenge] = challenge
 
-              post :create, params: { credential: new_webauthn_credential, nickname: nickname }
+              post :create, params: { credential: new_webauthn_credential.to_json, nickname: nickname }
 
-              expect(controller.session[:new_recovery_codes])
+              recovery_codes = response.parsed_body.css('.recovery-codes samp').map(&:text)
+
+              expect(response).to have_http_status(200)
+              expect(recovery_codes)
                 .to have_attributes(size: User.otp_number_of_backup_codes)
+                .and(all(satisfy { |code| user.reload.invalidate_otp_backup_code!(code) }))
             end
 
-            it 'redirects to the recovery codes page' do
+            it 'does not store the recovery codes in the session' do
               controller.session[:webauthn_challenge] = challenge
 
-              post :create, params: { credential: new_webauthn_credential, nickname: nickname }
+              post :create, params: { credential: new_webauthn_credential.to_json, nickname: nickname }
 
-              expect(response.parsed_body['redirect_path']).to eq settings_two_factor_authentication_recovery_codes_path
+              expect(controller.session.to_hash.values.flatten)
+                .to_not include(*response.parsed_body.css('.recovery-codes samp').map(&:text))
             end
           end
         end
@@ -283,7 +294,7 @@ RSpec.describe Settings::TwoFactorAuthentication::WebauthnCredentialsController 
           it 'fails' do
             controller.session[:webauthn_challenge] = challenge
 
-            post :create, params: { credential: new_webauthn_credential, nickname: 'USB Key' }
+            post :create, params: { credential: new_webauthn_credential.to_json, nickname: 'USB Key' }
 
             expect(response).to have_http_status(422)
             expect(flash[:error]).to be_present
@@ -303,10 +314,47 @@ RSpec.describe Settings::TwoFactorAuthentication::WebauthnCredentialsController 
           it 'fails' do
             controller.session[:webauthn_challenge] = challenge
 
-            post :create, params: { credential: new_webauthn_credential, nickname: nickname }
+            post :create, params: { credential: new_webauthn_credential.to_json, nickname: nickname }
 
             expect(response).to have_http_status(422)
             expect(flash[:error]).to be_present
+          end
+        end
+
+        context 'when the credential is not valid JSON' do
+          it 'fails without adding a credential' do
+            controller.session[:webauthn_challenge] = challenge
+
+            expect do
+              post :create, params: { credential: 'not json', nickname: nickname }
+            end.to_not(change { user.webauthn_credentials.count })
+
+            expect(response).to have_http_status(422)
+            expect(flash[:error]).to be_present
+          end
+        end
+
+        context 'when the credential is missing' do
+          it 'returns http bad request without adding a credential' do
+            controller.session[:webauthn_challenge] = challenge
+
+            expect do
+              post :create, params: { nickname: nickname }
+            end.to_not(change { user.webauthn_credentials.count })
+
+            expect(response).to have_http_status(400)
+          end
+        end
+
+        context 'when the credential is empty' do
+          it 'returns http bad request without adding a credential' do
+            controller.session[:webauthn_challenge] = challenge
+
+            expect do
+              post :create, params: { credential: '', nickname: nickname }
+            end.to_not(change { user.webauthn_credentials.count })
+
+            expect(response).to have_http_status(400)
           end
         end
 
@@ -316,7 +364,7 @@ RSpec.describe Settings::TwoFactorAuthentication::WebauthnCredentialsController 
               controller.session[:webauthn_challenge] = challenge
 
               expect do
-                post :create, params: { credential: new_webauthn_credential, nickname: nickname }
+                post :create, params: { credential: new_webauthn_credential.to_json, nickname: nickname }
               end.to change { user.webauthn_credentials.count }.by(1)
             end
           end
@@ -326,7 +374,7 @@ RSpec.describe Settings::TwoFactorAuthentication::WebauthnCredentialsController 
 
     context 'when not signed in' do
       it 'redirects to login' do
-        post :create, params: { credential: new_webauthn_credential, nickname: nickname }
+        post :create, params: { credential: new_webauthn_credential.to_json, nickname: nickname }
 
         expect(response).to redirect_to new_user_session_path
       end
